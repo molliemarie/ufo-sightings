@@ -22,6 +22,10 @@
   stroke-width: 1.5;
 }
 
+.title {
+  font: 20px sans-serif;
+}
+
 </style>
 
 <body>
@@ -35,6 +39,7 @@
 <script>
 
 var radius = 10
+var titleText = "UFO Sightings in "
 
 var parseTime = d3.timeParse("%m/%Y");
 
@@ -79,6 +84,9 @@ function dataSwap(datasetYear, lineGenerator) {
   svg.selectAll('.line')
     .transition()
     .attr('d', lineGenerator(thisDataGroup));
+
+  d3.select(".title")
+    .text(titleText + datasetYear)
 }
 
 d3.csv("ufo.csv", ready)
@@ -118,6 +126,11 @@ function ready(error, data) {
 
   var colorScale = d3.scaleSequential(d3.interpolateCool)
     .domain(d3.extent(startData, function(d) { return d.count; }));
+
+  svg.append("text")
+   .attr("class", "title")
+   .attr("dy", -5)
+   .text(titleText + startData[0].year)
 
   svg.append("g")
     .attr("class","x axis")
