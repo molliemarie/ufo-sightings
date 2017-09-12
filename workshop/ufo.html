@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<style type="text/css">
+
+/*svg {
+  border:1px solid #f0f;
+}*/
+.axis .tick {
+  stroke-width:0.5px;
+  stroke-opacity: .5;
+}
+.axis path {
+  stroke: none;
+}
+.line {
+  stroke: black;
+  fill: none;
+  stroke-width: 1.5;
+}
+
+</style>
+
+<body>
+</body>
+
+<script>
+
+var parseTime = d3.timeParse("%m/%Y");
+
+var margin = {top: 20, right: 40, bottom: 30, left: 40};
+var width = 900 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var svg = d3.select("body").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var xScale = d3.scaleTime()
+  .range([0, width]);
+
+var yScale = d3.scaleLinear()
+  .domain([0, 1200])
+  .range([height, 0]);
+
+
+var xAxis = d3.axisBottom(xScale)
+
+var yAxis = d3.axisLeft(yScale);
+
+d3.csv("ufo.csv", ready)
+function ready(error, data) {
+
+  if (error) return console.warn(error);
+
+
+  data.forEach(function(d) {
+    d.date = parseTime(d.date);
+    d.count = +d.count;
+    // d.month_num = d.date.getMonth()
+    // d.month_name = month[d.date.getMonth()]
+    d.year = d.date.getYear() + 1900
+    console.log(d.date, d.count, d.year)
+  });
+
+  var data = data.filter(function(d) { return d.year == 2016;})
+
+  console.log(data)
+
+  xScale.domain(d3.extent(data, function(d) { return d.date; }));
+
+  svg.append("g")
+    .attr("class","x axis")
+    .attr("transform","translate(0," + height + ")")
+    .call(xAxis);
+
+  svg.append("g")
+    .attr("class","y axis")
+    .call(yAxis);
+
+  svg.selectAll('.ufo-circle')
+    .data(data).enter().append('circle')
+    .attr('class', 'ufo-circle')
+    .attr('r', 5)
+    .attr("cx", function(d) { return xScale(d.date); })
+    .attr("cy", function(d) { return yScale(d.count); });
+
+  var LineGenerator = d3.line()
+    .x(function(d) { return xScale(d.date)})
+    .y(function(d) { return yScale(d.count)})
+    .curve(d3.curveCardinal);
+
+  var cheesePath = svg.append('path')
+    .attr('class', 'line')
+    .attr('d', LineGenerator(data));
+
+}
+</script>
