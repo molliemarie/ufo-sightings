@@ -8,7 +8,7 @@
 /*svg {
   border:1px solid #f0f;
 }*/
-.axis .tick {
+.axis.y .tick {
   stroke-width:0.5px;
   stroke-dasharray: 2px 2px;
   stroke-opacity: .5;
@@ -29,9 +29,11 @@
 
 <script>
 
+var radius = 10
+
 var parseTime = d3.timeParse("%m/%Y");
 
-var margin = {top: 20, right: 40, bottom: 30, left: 40};
+var margin = {top: 40, right: 50, bottom: 30, left: 40};
 var width = 900 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -69,7 +71,7 @@ function ready(error, data) {
 
   var data = data.filter(function(d) { return d.year == 2016;})
 
-  console.log(data)
+  console.log(data) 
 
   xScale.domain(d3.extent(data, function(d) { return d.date; }));
   yScale.domain(d3.extent(data, function(d) { return d.count; }));
@@ -87,12 +89,36 @@ function ready(error, data) {
     .data(data).enter().append('g')
     .attr('class', 'ufo-group')
     .attr('transform', function(d) { return 'translate(' + xScale(d.date) + ',' + yScale(d.count) + ')'})
+    .on('mouseenter', function(d) {
+
+      d3.select(this).select('circle')
+      .transition()
+        .attr('r', radius*2)
+
+      d3.select(this).select('text')
+        .transition()
+        .style('opacity', 1)
+    })
+
+
+    .on('mouseleave', function(d) {
+
+      ufoGroup.selectAll('circle')
+      .transition()
+        .attr('r', radius)
+
+      ufoGroup.selectAll('text')
+      .transition()
+      .style('opacity', 0)
+    })
 
   ufoGroup.append('circle')
-    .attr('r', 5);
+    .attr('r', radius);
 
   ufoGroup.append('text')
-    .attr('dx', 5)
+    .attr('dx', radius*2)
+    .attr('dy', -radius*2)
+    .style('opacity', 0)
     .text(function(d) { return d.count })
 
   var LineGenerator = d3.line()
