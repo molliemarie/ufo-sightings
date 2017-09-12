@@ -54,6 +54,36 @@ var xAxis = d3.axisBottom(xScale)
 var yAxis = d3.axisLeft(yScale)
   .tickSize(-width);
 
+// function dataSwap(datasetYear) {
+
+//   thisDataGroup = data.filter(function(d) { return d.year == datasetYear})
+
+//   // 11 update colors of circles
+//   thisDataGroup.sort(function(a, b) { return a.x - b.x });
+
+//   console.log(datasetYear)
+
+//   svg.selectAll('.circleGroups')
+//     .data(thisDataGroup)
+//     // 12) add transitions
+//     .transition()
+
+//     // ease
+//     // .ease(d3.easeElastic)
+
+//     // durations
+//     // .duration(3000)
+
+//     // delays
+//     .delay(function(d, i) {return i*40;})
+
+//     .attr('transform', function(d) {return 'translate(' + xScale(d.x) + ',' + yScale(d.y) + ')'})
+
+//   // 13) update title
+//     d3.select('.title')
+//       .text('Group ' + datasetYear);
+// }
+
 d3.csv("ufo.csv", ready)
 function ready(error, data) {
 
@@ -95,9 +125,18 @@ function ready(error, data) {
     .y(function(d) { return yScale(d.count)})
     .curve(d3.curveCardinal);
 
-  var cheesePath = svg.append('path')
+  svg.append('path')
     .attr('class', 'line')
     .attr('d', LineGenerator(data));
+
+  var text = svg.selectAll(('.ufo-label'))
+    .data(data).enter().append("text")
+    .attr('class', 'ufo-label')
+    .attr("x", function(d) { return xScale(d.date); })
+    .attr("y", function(d) { return yScale(d.count); })
+    .attr('dx', 5)
+    // .attr('dx', 5)
+    .text(function(d) { return d.count });
 
 }
 </script>
