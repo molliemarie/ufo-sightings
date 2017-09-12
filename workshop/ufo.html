@@ -125,7 +125,7 @@ function ready(error, data) {
   xScale.domain(d3.extent(startData, function(d) { return d.date; }));
 
   var colorScale = d3.scaleSequential(d3.interpolateCool)
-    .domain(d3.extent(startData, function(d) { return d.count; }));
+    .domain([0, startData.length-1])
 
   svg.append("text")
    .attr("class", "title")
@@ -174,8 +174,8 @@ function ready(error, data) {
 
   ufoGroup.append('circle')
     .attr('r', radius)
-    // .style('fill', function(d, i) { return colorScale(i); }); //to have color scale change across time
-    .style('fill', function(d, i) { return colorScale(d.count); }); //to have color scale change upwards, with change in count
+    .style('fill', function(d, i) { return colorScale(i); }); //to have color scale change across time
+    // .style('fill', function(d, i) { return colorScale(d.count); }); //to have color scale change upwards, with change in count
 
   ufoGroup.append('text')
     .attr('dx', radius*2)
