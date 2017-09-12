@@ -10,6 +10,7 @@
 }*/
 .axis .tick {
   stroke-width:0.5px;
+  stroke-dasharray: 2px 2px;
   stroke-opacity: .5;
 }
 .axis path {
@@ -50,7 +51,8 @@ var yScale = d3.scaleLinear()
 
 var xAxis = d3.axisBottom(xScale)
 
-var yAxis = d3.axisLeft(yScale);
+var yAxis = d3.axisLeft(yScale)
+  .tickSize(-width);
 
 d3.csv("ufo.csv", ready)
 function ready(error, data) {
@@ -61,8 +63,6 @@ function ready(error, data) {
   data.forEach(function(d) {
     d.date = parseTime(d.date);
     d.count = +d.count;
-    // d.month_num = d.date.getMonth()
-    // d.month_name = month[d.date.getMonth()]
     d.year = d.date.getYear() + 1900
     console.log(d.date, d.count, d.year)
   });
@@ -72,6 +72,7 @@ function ready(error, data) {
   console.log(data)
 
   xScale.domain(d3.extent(data, function(d) { return d.date; }));
+  yScale.domain(d3.extent(data, function(d) { return d.count; }));
 
   svg.append("g")
     .attr("class","x axis")
