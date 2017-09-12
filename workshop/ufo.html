@@ -25,6 +25,11 @@
 </style>
 
 <body>
+
+<div class=buttons><div>
+<br />
+
+</body>
 </body>
 
 <script>
@@ -68,6 +73,14 @@ function ready(error, data) {
     d.year = d.date.getYear() + 1900
     console.log(d.date, d.count, d.year)
   });
+
+  years = d3.set(data.map(function(d) { return d.year })).values();
+
+  d3.select('.buttons')
+    .selectAll('button')
+    .data(years)
+    .enter().append('button')
+    .text(function(d) { return d})
 
   var data = data.filter(function(d) { return d.year == 2016;})
 
