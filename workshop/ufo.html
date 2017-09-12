@@ -71,7 +71,13 @@ function ready(error, data) {
 
   var data = data.filter(function(d) { return d.year == 2016;})
 
+  // data.sort(function(a, b) { return a.x - b.x });
+
+  var colorScale = d3.scaleSequential(d3.interpolateCool)
+    .domain(d3.extent(data, function(d) { return d.count; }));
+
   console.log(data) 
+
 
   xScale.domain(d3.extent(data, function(d) { return d.date; }));
   yScale.domain(d3.extent(data, function(d) { return d.count; }));
@@ -113,7 +119,9 @@ function ready(error, data) {
     })
 
   ufoGroup.append('circle')
-    .attr('r', radius);
+    .attr('r', radius)
+    // .style('fill', function(d, i) { return colorScale(i); }); //to have color scale change across time
+    .style('fill', function(d, i) { return colorScale(d.count); }); //to have color scale change upwards, with change in count
 
   ufoGroup.append('text')
     .attr('dx', radius*2)
