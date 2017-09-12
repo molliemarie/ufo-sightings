@@ -61,39 +61,63 @@ var xAxis = d3.axisBottom(xScale)
 var yAxis = d3.axisLeft(yScale)
   .tickSize(-width);
 
+function dataSwap(datasetYear, lineGenerator) {
+
+  datasetYear = +datasetYear
+
+  thisDataGroup = data.filter(function(d) { return d.year == datasetYear})
+
+  xScale.domain(d3.extent(thisDataGroup, function(d) { return d.date; }));
+
+  svg.selectAll('.axis').filter('.x').call(xAxis)
+
+  svg.selectAll('.ufoGroup')
+    .data(thisDataGroup)
+    .transition()
+    .attr('transform', function(d) { return 'translate(' + xScale(d.date) + ',' + yScale(d.count) + ')'})
+
+  svg.selectAll('.line')
+    .transition()
+    .attr('d', lineGenerator(thisDataGroup));
+}
+
 d3.csv("ufo.csv", ready)
 function ready(error, data) {
 
   if (error) return console.warn(error);
 
-
   data.forEach(function(d) {
     d.date = parseTime(d.date);
     d.count = +d.count;
     d.year = d.date.getYear() + 1900
-    console.log(d.date, d.count, d.year)
   });
 
+  window.data = data;
+
   years = d3.set(data.map(function(d) { return d.year })).values();
+
+  var lineGenerator = d3.line()
+    .x(function(d) { return xScale(d.date)})
+    .y(function(d) { return yScale(d.count)})
+    .curve(d3.curveCardinal);
 
   d3.select('.buttons')
     .selectAll('button')
     .data(years)
     .enter().append('button')
     .text(function(d) { return d})
+    .on('click', function(d) {
+      dataSwap(d, lineGenerator)
+    })
 
-  var data = data.filter(function(d) { return d.year == 2016;})
+  yScale.domain(d3.extent(data, function(d) { return d.count; }));
 
-  // data.sort(function(a, b) { return a.x - b.x });
+  var startData = data.filter(function(d) { return d.year == 2016;})
+
+  xScale.domain(d3.extent(startData, function(d) { return d.date; }));
 
   var colorScale = d3.scaleSequential(d3.interpolateCool)
-    .domain(d3.extent(data, function(d) { return d.count; }));
-
-  console.log(data) 
-
-
-  xScale.domain(d3.extent(data, function(d) { return d.date; }));
-  yScale.domain(d3.extent(data, function(d) { return d.count; }));
+    .domain(d3.extent(startData, function(d) { return d.count; }));
 
   svg.append("g")
     .attr("class","x axis")
@@ -104,9 +128,13 @@ function ready(error, data) {
     .attr("class","y axis")
     .call(yAxis);
 
-  var ufoGroup = svg.selectAll('.ufo-group')
-    .data(data).enter().append('g')
-    .attr('class', 'ufo-group')
+  svg.append('path')
+    .attr('class', 'line')
+    .attr('d', lineGenerator(startData));
+
+  var ufoGroup = svg.selectAll('.ufoGroup')
+    .data(startData).enter().append('g')
+    .attr('class', 'ufoGroup')
     .attr('transform', function(d) { return 'translate(' + xScale(d.date) + ',' + yScale(d.count) + ')'})
     .on('mouseenter', function(d) {
 
@@ -141,15 +169,6 @@ function ready(error, data) {
     .attr('dy', -radius*2)
     .style('opacity', 0)
     .text(function(d) { return d.count })
-
-  var LineGenerator = d3.line()
-    .x(function(d) { return xScale(d.date)})
-    .y(function(d) { return yScale(d.count)})
-    .curve(d3.curveCardinal);
-
-  svg.append('path')
-    .attr('class', 'line')
-    .attr('d', LineGenerator(data));
 
 }
 </script>
